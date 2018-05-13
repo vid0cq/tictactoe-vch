@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using LanguageExt;
+using static LanguageExt.Prelude;
 
 namespace tictactoe_vch
 {
@@ -12,7 +13,7 @@ namespace tictactoe_vch
 
         #region Move
 
-        public (int, int) Move(BoxState[,] table)
+        public static (int, int) Move(BoxState[,] table)
         {
             var finalResult = Int32.MinValue;
             var (row, col) = (0, 0);
@@ -25,11 +26,11 @@ namespace tictactoe_vch
                     (row, col) = (urow, ucol);
                 }
             }
-
+            
             return (row, col);
         }
 
-        public static int ComputeMove(BoxState[,] table, int row, int col, bool playerTurn)
+        private static int ComputeMove(BoxState[,] table, int row, int col, bool playerTurn)
         {
             table[row, col] = playerTurn ? BoxState.X : BoxState.O;
             if (won(table, row, col)) return playerTurn ? -1 : 1;
@@ -60,7 +61,22 @@ namespace tictactoe_vch
 
         #region End of game
 
-        public static bool full(BoxState[,] table)
+        public static bool finished(TableState tableState)
+        {
+            return (tableState & TableState.Finished) == tableState;
+        }
+
+
+        public static TableState getTableState(BoxState[,] table, Option<int> row, Option<int> col)
+        {
+            return match(from r in row
+                         from c in col
+                         select new { r, c },
+                         Some: rc => won(table, rc.r, rc.c) ? TableState.Won : full(table) ? TableState.Full : TableState.InProgress,
+                         None: () => full(table) ? TableState.Full : TableState.InProgress);
+        }
+
+        private static bool full(BoxState[,] table)
         {
             for (int i = 0; i < table.GetLength(0); i++)
                 for (int j = 0; j < table.GetLength(0); j++)
@@ -69,7 +85,7 @@ namespace tictactoe_vch
             return true;
         }
 
-        public static bool won(BoxState[,] table, int row, int col)
+        private static bool won(BoxState[,] table, int row, int col)
         {
             return checkRow(table, row, col) || checkCol(table, row, col)
                 || checkDiag(table, row, col) || checkSecDiag(table, row, col);

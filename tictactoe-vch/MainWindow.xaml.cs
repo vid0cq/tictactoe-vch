@@ -12,7 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using static tictactoe_vch.Logic;
+using static tictactoe_vch.GameLogic;
 using LanguageExt;
 using static LanguageExt.Prelude;
 using System.Diagnostics;
@@ -26,7 +26,6 @@ namespace tictactoe_vch
     {
 
         private BoxState[,] table;
-        private Logic logic;
 
         public MainWindow()
         {

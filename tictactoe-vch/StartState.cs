@@ -11,25 +11,19 @@ namespace tictactoe_vch
 {
     class StartState : GameState
     {
-        public StartState() : base(new BoxState[3, 3]) { }
+        public StartState() : base(new BoxState[3, 3], None) { }
 
-        public override GameState progress(int row, int col)
+        public override GameState Progress(int row, int col)
         {
-            playerTurn(row, col);
-            return computerTurn();
+            Board[row, col] = BoxState.X;
+            return ComputerTurn();
         }
 
-        protected override GameState playerTurn(int row, int col)
+        private GameState ComputerTurn()
         {
-            board[row, col] = BoxState.X;
-            return new InProgressState(board, isPlayerTurn ^ true);
-        }
-
-        protected override GameState computerTurn()
-        {
-            var (row, col) = Move(board);
-            board[row, col] = BoxState.O;
-            return new InProgressState(board, isPlayerTurn ^ true);
+            var (row, col) = Move(Board);
+            Board[row, col] = BoxState.O;
+            return new InProgressState(Board, (row,col), Move.Computer);
         }
     }
 }

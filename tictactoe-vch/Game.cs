@@ -8,45 +8,33 @@ using static LanguageExt.Prelude;
 using static tictactoe_vch.GameLogic;
 
 namespace tictactoe_vch
-{
+{    
+
     class Game
     {
+        public event EventHandler<GameStateChangedEventArgs> GameStateChanged;
+
         private GameState state;
-        //private BoxState[,] board;
 
         public Game()
         {
-            Start();
-        }
-
-        public void Move(int row, int col)
-        {
-            state = state.progress(row, col);
-            //PlayerTurn(row, col);
-            //ComputerTurn();
-        }
-
-        private void Start()
-        {
             state = new StartState();
-            //board = new BoxState[3, 3];
         }
 
-        //public void PlayerTurn(Option<int> row, Option<int> col)
-        //{
-        //    match(from r in row
-        //          from c in col
-        //          select (r, c),
-        //          Some: t => { board[t.r, t.c] = BoxState.X; state = state.progress(board, t.r, t.c); },
-        //          None: () => Console.Write("as"));
-        //}
+        public Option<(int row,int col)> Move(int row, int col)
+        {
+            var newState = state.Progress(row, col);
+            var stateChanged = state != newState;
+            state = newState;
+            if (stateChanged && GameStateChanged != null)
+                GameStateChanged(this, new GameStateChangedEventArgs(newState));
 
-        //private void ComputerTurn()
-        //{
-        //    var (row, col) = Move(board);
-        //    board[row, col] = BoxState.O;
-        //    state = state.progress(board, row, col);
-        //}
+            return state.LastComputerMove;
+        }
 
+        public void Restart()
+        {
+            Move(-1, -1);
+        }
     }
 }

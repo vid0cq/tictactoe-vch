@@ -10,19 +10,19 @@ namespace tictactoe_vch
 {
     abstract class GameState
     {
-        protected bool isPlayerTurn;
+        public abstract GameState Progress(int row, int col);
 
-        protected GameState(BoxState[,] board, bool isPlayerTurn = true)
+        public Option<(int row, int col)> LastComputerMove { get; protected set; }
+
+        public Move LastMove { get; protected set; }
+
+        protected BoxState[,] Board { get; private set; }
+
+        protected GameState(BoxState[,] board, Option<(int row, int col)> computerMove, Move lastMove=Move.NA)
         {
-            this.board = board;
-            this.isPlayerTurn = isPlayerTurn;
+            this.Board = board;
+            this.LastComputerMove = computerMove;
+            this.LastMove = lastMove;
         }
-
-        public BoxState[,] board { get; private set; }
-
-        public abstract GameState progress(int row, int col);
-
-        protected abstract GameState playerTurn(int row, int col);
-        protected abstract GameState computerTurn();
     }
 }

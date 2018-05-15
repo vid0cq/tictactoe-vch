@@ -24,70 +24,51 @@ namespace tictactoe_vch
     /// </summary>
     public partial class MainWindow : Window
     {
-
-        private BoxState[,] table;
-
+        private Game game;
         public MainWindow()
         {
             InitializeComponent();
+            game = new Game();
+            game.GameStateChanged += Game_GameStateChanged;
             Start();
         }
 
         private void Start()
         {
-            table = new BoxState[3, 3];
             tictactoeGrid.Children.Cast<Button>().ToList().ForEach(btn => btn.Content = String.Empty);
-        }
+        }        
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             var button = ((Button)sender);
             var col = Grid.GetColumn(button);
             var row = Grid.GetRow(button);
-            if (table[row, col] != BoxState.Unused) return;
+            if (button.Content.ToString()!="") return;
 
-            var tableState = PlayerTurn(row, col);
-            if (finished(tableState))
+            MarkBox(row, col, Move.Human);
+            game.Move(row, col).IfSome((m) => MarkBox(m.row,m.col,Move.Computer));
+        }
+
+        private void MarkBox(int row, int col, Move move)
+        {
+            ((Button)tictactoeGrid.FindName("Button" + row + col)).Content = move==Move.Human ? "X":"O";
+        }
+        private void Game_GameStateChanged(object sender, GameStateChangedEventArgs e)
+        {
+            switch (e.GameState)
             {
-                ResetTable(tableState, true);
-                return;
-            }
-
-            tableState = ComputerTurn();
-            if (finished(tableState)) ResetTable(tableState, false);
-        }
-
-        private BoardState PlayerTurn(int row, int col)
-        {
-            table[row, col] = BoxState.X;
-            ((Button)tictactoeGrid.FindName("Button" + row + col)).Content = "X";
-            var tableState = getBoardState(table, row, col);
-            return tableState;
-        }
-
-        private BoardState ComputerTurn()
-        {
-            var (row, col) = Move(table);
-            table[row, col] = BoxState.O;
-            ((Button)tictactoeGrid.FindName("Button" + row + col)).Content = "O";
-            return getBoardState(table, row, col);
-        }
-
-        private void ResetTable(BoardState tableState, bool playerTurn)
-        {
-            string msg = null;
-            switch (tableState)
-            {
-                case BoardState.Full:
-                    msg = "It's a tie";
+                case StartState start:
+                    Start();
                     break;
-                case BoardState.Won:
-                    msg = playerTurn ? "You Won!" : "You Lost!";
+                case WonState won:
+                    won.LastComputerMove.IfSome((m) => MarkBox(m.row, m.col, Move.Computer));
+
+                    ShowMessage(won.LastMove==Move.Human ? "You won!" : "You lost!");
+                    break;
+                case FullState full:
+                    ShowMessage("It's a tie");
                     break;
             }
-
-            ShowMessage(msg);
-            Start();
         }
 
         private void ShowMessage(Option<String> message)
@@ -96,8 +77,8 @@ namespace tictactoe_vch
                 Some: msg => MessageBox.Show(msg),
                 None: () => Trace.WriteLine("Message was null: " + Environment.StackTrace)
                 );
-        }
 
-       
+            game.Restart();
+        }
     }
 }

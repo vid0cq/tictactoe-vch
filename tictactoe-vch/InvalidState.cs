@@ -4,14 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LanguageExt;
+using static LanguageExt.Prelude;
 
 namespace tictactoe_vch
 {
     class InvalidState : GameState
     {
-        //public InvalidState() : base(null) {}
+        public InvalidState() : base(null,None) {}
 
-        public override GameState progress(Option<BoxState[,]> board, Option<int> row, Option<int> col)
+        public override GameState Progress(int row, int col)
         {
             throw new NotImplementedException();
         }

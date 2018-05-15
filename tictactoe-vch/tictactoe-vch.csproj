@@ -82,8 +82,10 @@
     <Compile Include="FullState.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="GameState.cs" />
+    <Compile Include="GameStateChangedEventArgs.cs" />
     <Compile Include="InProgressState.cs" />
     <Compile Include="InvalidState.cs" />
+    <Compile Include="Move.cs" />
     <Compile Include="StartState.cs" />
     <Compile Include="BoardState.cs" />
     <Compile Include="WonState.cs" />

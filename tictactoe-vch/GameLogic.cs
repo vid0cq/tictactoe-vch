@@ -13,13 +13,13 @@ namespace tictactoe_vch
 
         #region Move
 
-        public static (int, int) Move(BoxState[,] table)
+        public static (int, int) Move(BoxState[,] board)
         {
             var finalResult = Int32.MinValue;
             var (row, col) = (0, 0);
-            foreach (var (urow,ucol) in GetUnusedBoxes(table))
+            foreach (var (urow,ucol) in GetUnusedBoxes(board))
             {
-                var crtResult = ComputeMove((BoxState[,])table.Clone(), urow, ucol, false);
+                var crtResult = ComputeMove((BoxState[,])board.Clone(), urow, ucol, false);
                 if (crtResult > finalResult)
                 {
                     finalResult = crtResult;
@@ -30,16 +30,16 @@ namespace tictactoe_vch
             return (row, col);
         }
 
-        private static int ComputeMove(BoxState[,] table, int row, int col, bool playerTurn)
+        private static int ComputeMove(BoxState[,] board, int row, int col, bool playerTurn)
         {
-            table[row, col] = playerTurn ? BoxState.X : BoxState.O;
-            if (won(table, row, col)) return playerTurn ? -1 : 1;
-            if (full(table)) return 0;
+            board[row, col] = playerTurn ? BoxState.X : BoxState.O;
+            if (won(board, row, col)) return playerTurn ? -1 : 1;
+            if (full(board)) return 0;
 
             var finalResult = playerTurn ? Int32.MinValue : Int32.MaxValue;
-            foreach (var (urow, ucol) in GetUnusedBoxes(table))
+            foreach (var (urow, ucol) in GetUnusedBoxes(board))
             {
-                var result = ComputeMove((BoxState[,])table.Clone(), urow, ucol, playerTurn ^ true);
+                var result = ComputeMove((BoxState[,])board.Clone(), urow, ucol, playerTurn ^ true);
                 if(playerTurn && result>finalResult) finalResult = result;
                 else if(!playerTurn && result < finalResult) finalResult = result;
             }
@@ -47,12 +47,12 @@ namespace tictactoe_vch
             return finalResult;
         }
 
-        private static IEnumerable<(int, int)> GetUnusedBoxes(BoxState[,] table)
+        private static IEnumerable<(int, int)> GetUnusedBoxes(BoxState[,] board)
         {
             var unusedBoxes = new List<(int, int)>();
-            for (int i = 0; i < table.GetLength(0); i++)
-                for (int j = 0; j < table.GetLength(0); j++)
-                    if (table[i, j] == BoxState.Unused) unusedBoxes.Add((i, j));
+            for (int i = 0; i < board.GetLength(0); i++)
+                for (int j = 0; j < board.GetLength(0); j++)
+                    if (board[i, j] == BoxState.Unused) unusedBoxes.Add((i, j));
 
             return unusedBoxes;
         }
@@ -61,72 +61,72 @@ namespace tictactoe_vch
 
         #region End of game
 
-        public static bool finished(TableState tableState)
+        public static bool finished(BoardState boardState)
         {
-            return (tableState & TableState.Finished) == tableState;
+            return (boardState & BoardState.Finished) == boardState;
         }
 
 
-        public static TableState getTableState(BoxState[,] table, Option<int> row, Option<int> col)
+        public static BoardState getBoardState(BoxState[,] board, Option<int> row, Option<int> col)
         {
             return match(from r in row
                          from c in col
                          select ( r, c ),
-                         Some: t => won(table, t.r, t.c) ? TableState.Won : full(table) ? TableState.Full : TableState.InProgress,
-                         None: () => full(table) ? TableState.Full : TableState.InProgress);
+                         Some: t => won(board, t.r, t.c) ? BoardState.Won : full(board) ? BoardState.Full : BoardState.InProgress,
+                         None: () => full(board) ? BoardState.Full : BoardState.InProgress);
         }
 
-        private static bool full(BoxState[,] table)
+        private static bool full(BoxState[,] board)
         {
-            for (int i = 0; i < table.GetLength(0); i++)
-                for (int j = 0; j < table.GetLength(0); j++)
-                    if (table[i, j] == BoxState.Unused) return false;
+            for (int i = 0; i < board.GetLength(0); i++)
+                for (int j = 0; j < board.GetLength(0); j++)
+                    if (board[i, j] == BoxState.Unused) return false;
 
             return true;
         }
 
-        private static bool won(BoxState[,] table, int row, int col)
+        private static bool won(BoxState[,] board, int row, int col)
         {
-            return checkRow(table, row, col) || checkCol(table, row, col)
-                || checkDiag(table, row, col) || checkSecDiag(table, row, col);
+            return checkRow(board, row, col) || checkCol(board, row, col)
+                || checkDiag(board, row, col) || checkSecDiag(board, row, col);
         }
 
-        private static bool checkRow(BoxState[,] table, int row, int col)
+        private static bool checkRow(BoxState[,] board, int row, int col)
         {
-            BoxState state = table[row, col];
-            for (int i = 0; i < table.GetLength(0); i++)
-                if (table[i, col] != state) return false;
+            BoxState state = board[row, col];
+            for (int i = 0; i < board.GetLength(0); i++)
+                if (board[i, col] != state) return false;
 
             return true;
         }
 
-        private static bool checkCol(BoxState[,] table, int row, int col)
+        private static bool checkCol(BoxState[,] board, int row, int col)
         {
-            BoxState state = table[row, col];
-            for (int i = 0; i < table.GetLength(0); i++)
-                if (table[row, i] != state) return false;
+            BoxState state = board[row, col];
+            for (int i = 0; i < board.GetLength(0); i++)
+                if (board[row, i] != state) return false;
 
             return true;
         }
 
-        private static bool checkDiag(BoxState[,] table, int row, int col)
+        private static bool checkDiag(BoxState[,] board, int row, int col)
         {
             if (row != col) return false;
 
-            BoxState state = table[row, col];
-            for (int i = 0; i < table.GetLength(0); i++)
-                if (table[i, i] != state) return false;
+            BoxState state = board[row, col];
+            for (int i = 0; i < board.GetLength(0); i++)
+                if (board[i, i] != state) return false;
 
             return true;
         }
 
-        private static bool checkSecDiag(BoxState[,] table, int row, int col)
+        private static bool checkSecDiag(BoxState[,] board, int row, int col)
         {
-            if (row + col != table.GetLength(0) - 1) return false;
+            if (row + col != board.GetLength(0) - 1) return false;
 
-            BoxState state = table[row, col];
-            for (int i = 0; i < table.GetLength(0); i++)
-                if (table[i, table.GetLength(0) - (i + 1)] != state) return false;
+            BoxState state = board[row, col];
+            for (int i = 0; i < board.GetLength(0); i++)
+                if (board[i, board.GetLength(0) - (i + 1)] != state) return false;
 
             return true;
         }

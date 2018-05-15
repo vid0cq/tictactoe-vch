@@ -57,31 +57,31 @@ namespace tictactoe_vch
             if (finished(tableState)) ResetTable(tableState, false);
         }
 
-        private TableState PlayerTurn(int row, int col)
+        private BoardState PlayerTurn(int row, int col)
         {
             table[row, col] = BoxState.X;
             ((Button)tictactoeGrid.FindName("Button" + row + col)).Content = "X";
-            var tableState = getTableState(table, row, col);
+            var tableState = getBoardState(table, row, col);
             return tableState;
         }
 
-        private TableState ComputerTurn()
+        private BoardState ComputerTurn()
         {
             var (row, col) = Move(table);
             table[row, col] = BoxState.O;
             ((Button)tictactoeGrid.FindName("Button" + row + col)).Content = "O";
-            return getTableState(table, row, col);
+            return getBoardState(table, row, col);
         }
 
-        private void ResetTable(TableState tableState, bool playerTurn)
+        private void ResetTable(BoardState tableState, bool playerTurn)
         {
             string msg = null;
             switch (tableState)
             {
-                case TableState.Full:
+                case BoardState.Full:
                     msg = "It's a tie";
                     break;
-                case TableState.Won:
+                case BoardState.Won:
                     msg = playerTurn ? "You Won!" : "You Lost!";
                     break;
             }

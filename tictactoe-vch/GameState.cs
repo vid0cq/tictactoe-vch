@@ -10,16 +10,19 @@ namespace tictactoe_vch
 {
     abstract class GameState
     {
-        //protected bool playerTurn;
+        protected bool isPlayerTurn;
 
-        //protected GameState(bool playerTurn=true)
-        //{
-        //    //this.board = board;
-        //    this.playerTurn = playerTurn;
-        //}
-        
-        //public BoxState[,] board { get; private set; }
+        protected GameState(BoxState[,] board, bool isPlayerTurn = true)
+        {
+            this.board = board;
+            this.isPlayerTurn = isPlayerTurn;
+        }
 
-        public abstract GameState progress(Option<BoxState[,]> board, Option<int> row, Option<int> col);
+        public BoxState[,] board { get; private set; }
+
+        public abstract GameState progress(int row, int col);
+
+        protected abstract GameState playerTurn(int row, int col);
+        protected abstract GameState computerTurn();
     }
 }

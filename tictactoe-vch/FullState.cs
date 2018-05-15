@@ -9,9 +9,20 @@ namespace tictactoe_vch
 {
     class FullState : GameState
     {
-        public override GameState progress(Option<BoxState[,]> board, Option<int> row, Option<int> col)
+        public FullState(BoxState[,] board, bool playerTurn) : base(board, playerTurn) { }
+        public override GameState progress(int row, int col)
         {
             return new StartState();
+        }
+
+        protected override GameState computerTurn()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override GameState playerTurn(int row, int col)
+        {
+            throw new NotImplementedException();
         }
     }
 }

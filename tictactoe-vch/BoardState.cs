@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace tictactoe_vch
 {
-    enum TableState
+    enum BoardState
     {
         InProgress=1,
         Full=2,

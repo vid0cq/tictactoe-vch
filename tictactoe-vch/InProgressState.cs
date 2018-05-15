@@ -11,25 +11,36 @@ namespace tictactoe_vch
 {
     class InProgressState : GameState
     {
-        //public InProgressState(bool playerTurn) : base(playerTurn) { }
+        public InProgressState(BoxState[,] board, bool isPlayerTurn) : base(board, isPlayerTurn) { }
 
-        public override GameState progress(Option<BoxState[,]> board, Option<int> row, Option<int> col)
+        public override GameState progress(int row, int col)
         {
-            return match(from b in board
-                         from r in row
-                         from c in col
-                         select (b, r, c),
-                        Some: all => progress(all.b, all.r, all.c),
-                        None: () => new InvalidState());
+            var gameState = playerTurn(row, col);
+            if (gameState is WonState || gameState is FullState) return gameState;
+            return computerTurn();
         }
 
-        private GameState progress(BoxState[,] board, int row, int col)
+        protected override GameState playerTurn(int row, int col)
         {
-            var tableState = getTableState(board, row, col);
-            if (!finished(tableState)) return this;
+            board[row, col] = BoxState.X;
+            var boardState = getBoardState(board, row, col);
+            return getGameState(boardState);
+        }
 
-            if (tableState == TableState.Won) return new WonState();
-            else return new FullState();
+        private GameState getGameState(BoardState boardState)
+        {
+            if (!finished(boardState)) return this;
+
+            if (boardState == BoardState.Won) return new WonState(board, isPlayerTurn);
+            else return new FullState(board, isPlayerTurn);
+        }
+
+        protected override GameState computerTurn()
+        {
+            var (row, col) = Move(board);
+            board[row, col] = BoxState.O;
+            var boardState = getBoardState(board, row, col);
+            return getGameState(boardState);
         }
     }
 }

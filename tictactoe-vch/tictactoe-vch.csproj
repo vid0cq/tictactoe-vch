@@ -85,7 +85,7 @@
     <Compile Include="InProgressState.cs" />
     <Compile Include="InvalidState.cs" />
     <Compile Include="StartState.cs" />
-    <Compile Include="TableState.cs" />
+    <Compile Include="BoardState.cs" />
     <Compile Include="WonState.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

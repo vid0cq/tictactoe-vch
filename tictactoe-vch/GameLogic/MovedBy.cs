@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace tictactoe_vch
 {
-    enum Move
+    enum MovedBy
     {
         NA,
         Human,

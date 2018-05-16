@@ -12,7 +12,7 @@ namespace tictactoe_vch
     {
         public InvalidState() : base(null,None) {}
 
-        public override GameState Progress(int row, int col)
+        public override GameState Progress(Option<(int row, int col)> humanMove)
         {
             throw new NotImplementedException();
         }

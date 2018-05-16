@@ -45,13 +45,15 @@ namespace tictactoe_vch
             var row = Grid.GetRow(button);
             if (button.Content.ToString()!="") return;
 
-            MarkBox(row, col, Move.Human);
-            game.Move(row, col).IfSome((m) => MarkBox(m.row,m.col,Move.Computer));
+            var humanMove = new Move((row, col), MovedBy.Human);
+            MarkBox(humanMove);
+            game.Move(row, col).IfSome(move => MarkBox(move));
         }
 
-        private void MarkBox(int row, int col, Move move)
+        private void MarkBox(Move move)
         {
-            ((Button)tictactoeGrid.FindName("Button" + row + col)).Content = move==Move.Human ? "X":"O";
+            move.MovePosition.IfSome(m => 
+                ((Button)tictactoeGrid.FindName("Button" + m.row + m.col)).Content = move.MovedBy==MovedBy.Human ? "X":"O");
         }
         private void Game_GameStateChanged(object sender, GameStateChangedEventArgs e)
         {
@@ -61,12 +63,14 @@ namespace tictactoe_vch
                     Start();
                     break;
                 case WonState won:
-                    won.LastComputerMove.IfSome((m) => MarkBox(m.row, m.col, Move.Computer));
-
-                    ShowMessage(won.LastMove==Move.Human ? "You won!" : "You lost!");
+                    won.LastMove.IfSome(move => {
+                            MarkBox(move);
+                            ShowMessage(move.MovedBy == MovedBy.Human ? "You won!" : "You lost!"); });
+                    game.Restart();
                     break;
                 case FullState full:
                     ShowMessage("It's a tie");
+                    game.Restart();
                     break;
             }
         }
@@ -77,8 +81,6 @@ namespace tictactoe_vch
                 Some: msg => MessageBox.Show(msg),
                 None: () => Trace.WriteLine("Message was null: " + Environment.StackTrace)
                 );
-
-            game.Restart();
         }
     }
 }

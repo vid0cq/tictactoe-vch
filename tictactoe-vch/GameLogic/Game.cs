@@ -21,15 +21,15 @@ namespace tictactoe_vch
             state = new StartState();
         }
 
-        public Option<(int row,int col)> Move(int row, int col)
+        public Option<Move> Move(int row, int col)
         {
-            var newState = state.Progress(row, col);
+            var newState = state.Progress((row, col));
             var stateChanged = state != newState;
             state = newState;
             if (stateChanged && GameStateChanged != null)
                 GameStateChanged(this, new GameStateChangedEventArgs(newState));
 
-            return state.LastComputerMove;
+            return state.LastMove;
         }
 
         public void Restart()

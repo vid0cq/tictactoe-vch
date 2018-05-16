@@ -79,16 +79,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="FullState.cs" />
-    <Compile Include="Game.cs" />
-    <Compile Include="GameState.cs" />
-    <Compile Include="GameStateChangedEventArgs.cs" />
-    <Compile Include="InProgressState.cs" />
-    <Compile Include="InvalidState.cs" />
-    <Compile Include="Move.cs" />
-    <Compile Include="StartState.cs" />
-    <Compile Include="BoardState.cs" />
-    <Compile Include="WonState.cs" />
+    <Compile Include="GameState\FullState.cs" />
+    <Compile Include="GameLogic\Game.cs" />
+    <Compile Include="GameState\GameState.cs" />
+    <Compile Include="GameState\GameStateChangedEventArgs.cs" />
+    <Compile Include="GameState\InProgressState.cs" />
+    <Compile Include="GameState\InvalidState.cs" />
+    <Compile Include="GameLogic\Move.cs" />
+    <Compile Include="GameLogic\MovedBy.cs" />
+    <Compile Include="GameState\StartState.cs" />
+    <Compile Include="GameState\BoardState.cs" />
+    <Compile Include="GameState\WonState.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -97,8 +98,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="BoxState.cs" />
-    <Compile Include="GameLogic.cs" />
+    <Compile Include="GameLogic\GameLogic.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

@@ -10,10 +10,10 @@ namespace tictactoe_vch
 {
     class Move : Record<Move>
     {
-        public readonly Option<(int row, int col)> MovePosition;
+        public readonly (int row, int col) MovePosition;
         public readonly MovedBy MovedBy;
 
-        public Move(Option<(int row, int col)> movePosition, MovedBy movedBy)
+        public Move((int row, int col) movePosition, MovedBy movedBy)
         {
             MovePosition = movePosition;
             MovedBy = movedBy;

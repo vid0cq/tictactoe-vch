@@ -11,14 +11,14 @@ namespace tictactoe_vch
 {
     class StartState : GameState
     {
-        public StartState() : base(new MovedBy[3, 3], new Move(None, MovedBy.NA)) { }
+        public StartState() : base(Lst<Move>.Empty, None) { }
 
-        public override GameState Progress(Option<(int row, int col)> humanMove)
+        public override GameState Progress(Option<Move> humanMove)
         {
             return match(humanMove,
-                    Some: pos =>
+                    Some: move =>
                     {
-                        Board[pos.row, pos.col] = MovedBy.Human;
+                        Board = move.Cons(Board);
                         return ComputerTurn();
                     },
                     None: () => throw new ArgumentException("The move was invalid"));
@@ -26,10 +26,9 @@ namespace tictactoe_vch
 
         private GameState ComputerTurn()
         {
-            var (row, col) = Move(Board);
-            Board[row, col] = MovedBy.Computer;
-            var move = new Move((row, col), MovedBy.Computer);
-            return new InProgressState(Board, move);
+            var computerMove = Move(Board);
+            Board = computerMove.Cons(Board);
+            return new InProgressState(Board, computerMove);
         }
     }
 }

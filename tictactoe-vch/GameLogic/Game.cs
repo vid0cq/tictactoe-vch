@@ -21,9 +21,9 @@ namespace tictactoe_vch
             state = new StartState();
         }
 
-        public Option<Move> Move(int row, int col)
+        public Option<Move> Move(Option<Move> humanMove)
         {
-            var newState = state.Progress((row, col));
+            var newState = state.Progress(humanMove);
             var stateChanged = state != newState;
             state = newState;
             if (stateChanged && GameStateChanged != null)
@@ -34,7 +34,8 @@ namespace tictactoe_vch
 
         public void Restart()
         {
-            Move(-1, -1);
+            if(state is WonState || state is FullState) Move(None);
+            else throw new InvalidOperationException("Cannot restart a game in progress. Just play to the finish coward!");
         }
     }
 }

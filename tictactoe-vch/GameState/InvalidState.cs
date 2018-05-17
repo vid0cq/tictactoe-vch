@@ -10,9 +10,9 @@ namespace tictactoe_vch
 {
     class InvalidState : GameState
     {
-        public InvalidState() : base(null,None) {}
+        public InvalidState() : base(Lst<Move>.Empty, None) { }
 
-        public override GameState Progress(Option<(int row, int col)> humanMove)
+        public override GameState Progress(Option<Move> humanMove)
         {
             throw new NotImplementedException();
         }

@@ -9,9 +9,9 @@ namespace tictactoe_vch
 {
     class FullState : GameState
     {
-        public FullState(MovedBy[,] board, Move lastMove) 
+        public FullState(Lst<Move> board, Move lastMove) 
             : base(board, lastMove) { }
-        public override GameState Progress(Option<(int row, int col)> humanMove)
+        public override GameState Progress(Option<Move> humanMove)
         {
             return new StartState();
         }

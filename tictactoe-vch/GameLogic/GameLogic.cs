@@ -13,13 +13,13 @@ namespace tictactoe_vch
 
         #region Move
 
-        public static (int, int) Move(MovedBy[,] board)
+        public static Move Move(Lst<Move> board)
         {
             var finalResult = Int32.MinValue;
             var (row, col) = (0, 0);
             foreach (var (urow,ucol) in GetUnusedBoxes(board))
             {
-                var crtResult = ComputeMove((MovedBy[,])board.Clone(), urow, ucol, false);
+                var crtResult = ComputeMove(board, urow, ucol, false);
                 if (crtResult > finalResult)
                 {
                     finalResult = crtResult;
@@ -27,19 +27,20 @@ namespace tictactoe_vch
                 }
             }
             
-            return (row, col);
+            return new Move((row, col),MovedBy.Computer);
         }
 
-        private static int ComputeMove(MovedBy[,] board, int row, int col, bool playerTurn)
+        private static int ComputeMove(Lst<Move> board, int row, int col, bool playerTurn)
         {
-            board[row, col] = playerTurn ? MovedBy.Human : MovedBy.Computer;
-            if (Won(board, row, col)) return playerTurn ? -1 : 1;
+            var move = new Move((row, col), playerTurn ? MovedBy.Human : MovedBy.Computer);
+            board=move.Cons(board);
+            if (Won(board, move)) return playerTurn ? -1 : 1;
             if (Full(board)) return 0;
 
             var finalResult = playerTurn ? Int32.MinValue : Int32.MaxValue;
             foreach (var (urow, ucol) in GetUnusedBoxes(board))
             {
-                var result = ComputeMove((MovedBy[,])board.Clone(), urow, ucol, playerTurn ^ true);
+                var result = ComputeMove(board, urow, ucol, playerTurn ^ true);
                 if(playerTurn && result>finalResult) finalResult = result;
                 else if(!playerTurn && result < finalResult) finalResult = result;
             }
@@ -47,14 +48,10 @@ namespace tictactoe_vch
             return finalResult;
         }
 
-        private static IEnumerable<(int, int)> GetUnusedBoxes(MovedBy[,] board)
+        private static IEnumerable<(int, int)> GetUnusedBoxes(Lst<Move> board)
         {
-            var unusedBoxes = new List<(int, int)>();
-            for (int i = 0; i < board.GetLength(0); i++)
-                for (int j = 0; j < board.GetLength(0); j++)
-                    if (board[i, j] == MovedBy.NA) unusedBoxes.Add((i, j));
-
-            return unusedBoxes;
+            return List((0,0),(0,1),(0,2),(1,0),(1,1),(1,2),(2,0),(2,1),(2,2))
+                .Subtract(board.Map(b=>b.MovePosition));
         }
 
         #endregion Move
@@ -66,69 +63,60 @@ namespace tictactoe_vch
             return (boardState & BoardState.Finished) == boardState;
         }
 
-
-        public static BoardState GetBoardState(MovedBy[,] board, Option<int> row, Option<int> col)
+        public static BoardState GetBoardState(Option<Lst<Move>> board, Option<Move> lastMove)
         {
-            return match(from r in row
-                         from c in col
-                         select ( r, c ),
-                         Some: t => Won(board, t.r, t.c) ? BoardState.Won : Full(board) ? BoardState.Full : BoardState.InProgress,
-                         None: () => Full(board) ? BoardState.Full : BoardState.InProgress);
+            return match(from brd in board
+                         from move in lastMove
+                         select ( brd, move ),
+                         Some: t => Won(t.brd, t.move) ? BoardState.Won : Full(t.brd) ? BoardState.Full : BoardState.InProgress,
+                         None: () => throw new ArgumentException("Board or last move is not valid"));
         }
 
-        private static bool Full(MovedBy[,] board)
+        private static bool Full(Lst<Move> board)
         {
-            for (int i = 0; i < board.GetLength(0); i++)
-                for (int j = 0; j < board.GetLength(0); j++)
-                    if (board[i, j] == MovedBy.NA) return false;
-
-            return true;
+            return board.Length() == 9;
         }
 
-        private static bool Won(MovedBy[,] board, int row, int col)
+        private static bool Won(Lst<Move> board, Move lastMove)
         {
-            return CheckRow(board, row, col) || CheckCol(board, row, col)
-                || CheckDiag(board, row, col) || CheckSecDiag(board, row, col);
+            return CheckRow(board, lastMove) || CheckCol(board, lastMove)
+                || CheckDiag(board, lastMove) || CheckSecDiag(board, lastMove);
         }
 
-        private static bool CheckRow(MovedBy[,] board, int row, int col)
+        private static bool CheckRow(Lst<Move> board, Move lastMove)
         {
-            MovedBy state = board[row, col];
-            for (int i = 0; i < board.GetLength(0); i++)
-                if (board[i, col] != state) return false;
-
-            return true;
+            return match(isMovedBy(board, lastMove),
+               Some: by => board.Filter(m => m.MovePosition.col== lastMove.MovePosition.col).Count(m => m.MovedBy == by)==3,
+               None: () => false);
         }
 
-        private static bool CheckCol(MovedBy[,] board, int row, int col)
+        private static bool CheckCol(Lst<Move> board, Move lastMove)
         {
-            MovedBy state = board[row, col];
-            for (int i = 0; i < board.GetLength(0); i++)
-                if (board[row, i] != state) return false;
-
-            return true;
+            return match(isMovedBy(board, lastMove),
+                Some: by => board.Filter(m => m.MovePosition.row == lastMove.MovePosition.row).Count(m => m.MovedBy == by)==3,
+                None: () => false);
         }
 
-        private static bool CheckDiag(MovedBy[,] board, int row, int col)
+        private static bool CheckDiag(Lst<Move> board, Move lastMove)
         {
-            if (row != col) return false;
+            if (lastMove.MovePosition.row != lastMove.MovePosition.col) return false;
 
-            MovedBy state = board[row, col];
-            for (int i = 0; i < board.GetLength(0); i++)
-                if (board[i, i] != state) return false;
-
-            return true;
+            return match(isMovedBy(board, lastMove),
+                Some: by => board.Filter(m => m.MovePosition.row == m.MovePosition.col).Count(m => m.MovedBy == by)==3,
+                None: () => false);
         }
 
-        private static bool CheckSecDiag(MovedBy[,] board, int row, int col)
+        private static bool CheckSecDiag(Lst<Move> board, Move lastMove)
         {
-            if (row + col != board.GetLength(0) - 1) return false;
+            if (lastMove.MovePosition.row + lastMove.MovePosition.col != 3 - 1) return false;
+            return match(isMovedBy(board, lastMove),
+                Some: by => board.Filter(m=>m.MovePosition.row+m.MovePosition.col==3-1).Count(m=>m.MovedBy==by)==3,
+                None: () => false);
+        }
 
-            MovedBy state = board[row, col];
-            for (int i = 0; i < board.GetLength(0); i++)
-                if (board[i, board.GetLength(0) - (i + 1)] != state) return false;
-
-            return true;
+        private static Option<MovedBy> isMovedBy(Lst<Move> board, Move lastMove)
+        {
+            return board.Find(m => m==lastMove).Select(m => m.MovedBy);
         }
 
         #endregion End of game

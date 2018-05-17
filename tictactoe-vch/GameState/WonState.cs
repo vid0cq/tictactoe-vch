@@ -9,10 +9,10 @@ namespace tictactoe_vch
 {
     class WonState : GameState
     {
-        public WonState(MovedBy[,] board, Move lastMove) 
+        public WonState(Lst<Move> board, Move lastMove) 
             : base(board, lastMove){}
 
-        public override GameState Progress(Option<(int row, int col)> humanMove)
+        public override GameState Progress(Option<Move> humanMove)
         {
             return new StartState();
         }

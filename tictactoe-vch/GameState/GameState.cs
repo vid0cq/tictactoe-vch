@@ -10,13 +10,13 @@ namespace tictactoe_vch
 {
     abstract class GameState
     {
-        public abstract GameState Progress(Option<(int row, int col)> humanMove);
+        public abstract GameState Progress(Option<Move> humanMove);
 
         public Option<Move> LastMove { get; protected set; }
 
-        protected MovedBy[,] Board { get; private set; }
+        protected Lst<Move> Board{ get; set; }
 
-        protected GameState(MovedBy[,] board, Option<Move> lastMove)
+        protected GameState(Lst<Move> board, Option<Move> lastMove)
         {
             this.Board = board;
             this.LastMove = lastMove;

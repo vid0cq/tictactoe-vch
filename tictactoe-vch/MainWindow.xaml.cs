@@ -47,13 +47,12 @@ namespace tictactoe_vch
 
             var humanMove = new Move((row, col), MovedBy.Human);
             MarkBox(humanMove);
-            game.Move(row, col).IfSome(move => MarkBox(move));
+            game.Move(humanMove).IfSome(move => MarkBox(move));
         }
 
         private void MarkBox(Move move)
         {
-            move.MovePosition.IfSome(m => 
-                ((Button)tictactoeGrid.FindName("Button" + m.row + m.col)).Content = move.MovedBy==MovedBy.Human ? "X":"O");
+            ((Button)tictactoeGrid.FindName("Button" + move.MovePosition.row + move.MovePosition.col)).Content = move.MovedBy==MovedBy.Human ? "X":"O";
         }
         private void Game_GameStateChanged(object sender, GameStateChangedEventArgs e)
         {

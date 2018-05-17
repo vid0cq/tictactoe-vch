@@ -11,32 +11,32 @@ namespace tictactoe_vch
 {
     class InProgressState : GameState
     {
-        public InProgressState(MovedBy[,] board, Move lastMove) 
+        public InProgressState(Lst<Move> board, Move lastMove) 
             : base(board, lastMove) { }
 
-        public override GameState Progress(Option<(int row, int col)> humanMove)
+        public override GameState Progress(Option<Move> humanMove)
         {
-                return match(humanMove,
-                        Some: move => {
-                        var gameState = PlayerTurn(move.row, move.col);
-                        if (gameState is WonState || gameState is FullState) return gameState;
-                        return ComputerTurn(); },
-                    None: () => throw new ArgumentException("The move was invalid"));
+            return match(humanMove,
+                Some: move => {
+                    var gameState = PlayerTurn(move);
+                    if (gameState is WonState || gameState is FullState) return gameState;
+                    return ComputerTurn(); },
+                None: () => throw new ArgumentException("The move was invalid"));
         }
 
-        protected GameState PlayerTurn(int row, int col)
+        protected GameState PlayerTurn(Move humanMove)
         {
-            Board[row, col] = MovedBy.Human;
-            var boardState = GetBoardState(Board, row, col);
-            return getGameState(boardState, new Move((row,col), MovedBy.Human));
+            Board = humanMove.Cons(Board);
+            var boardState = GetBoardState(Board, humanMove);
+            return getGameState(boardState, humanMove);
         }
 
         private GameState ComputerTurn()
         {
-            var (row, col) = Move(Board);
-            Board[row, col] = MovedBy.Computer;
-            var boardState = GetBoardState(Board, row, col);
-            return getGameState(boardState, new Move((row, col), MovedBy.Computer));
+            var computerMove = Move(Board);
+            Board = computerMove.Cons(Board);
+            var boardState = GetBoardState(Board, computerMove);
+            return getGameState(boardState, computerMove);
         }
 
         private GameState getGameState(BoardState boardState, Move lastMove)
